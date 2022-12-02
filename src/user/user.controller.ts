@@ -1,29 +1,22 @@
 import {
   Controller,
   Get,
-  Post,
-  Body,
+  Param,
+  UseGuards,
+  Req
 } from '@nestjs/common';
 import { UserService } from './user.service';
-import { SignUpDto, LoginDto } from './user.dto';
+import { UserIdDto } from './user.dto';
 import { API_VERSION } from '../version';
+import { AuthGuard } from 'src/auth/auth.guard';
 
 @Controller(`${API_VERSION}/user`)
+@UseGuards(AuthGuard)
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @Post("signUp")
-  signUp(@Body() signUpData: SignUpDto) {
-    return this.userService.signUp(signUpData);
-  }
-
-  @Post("login")
-  login(@Body() loginData: LoginDto) {
-    return this.userService.login(loginData);
-  }
-
-  @Get()
-  viewUser(id: string) {
-    return this.userService.viewUser(id);
+  @Get(":id")
+  viewUser(@Req() req, @Param() userIdDto: UserIdDto) {
+    return this.userService.viewUser(userIdDto.id, req.headers.authorization);
   }
 }
